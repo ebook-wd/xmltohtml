@@ -14,15 +14,11 @@ python xmltohtml.py -i foo.xml -o foo.html
 __author__      = "William Doyle A F"
 __copyright__   = "Copyright 2016"
 __license__ 	= "GNU GPLv3 (http://www.gnu.de/documents/gpl-3.0.en.html)"
-__version__ 	= "1.0"
-
-
+__version__ 	= "1.2"
 
 import re
 import sys
-import os
 import getopt
-from lxml import etree
 from bs4 import BeautifulSoup
 
 soup = ''
@@ -153,7 +149,7 @@ def main():
             tag = soup.find('text')
             indent_next = int(tag.get('left'))
             nextline_header = tag.get('top')
-            nextline_top = int(tag.get('top'))
+            #nextline_top = int(tag.get('top'))
             nextline_font = tag.get('font')
             
             
@@ -163,7 +159,7 @@ def main():
             indent = int(tag.get('left'))
             font = tag.get('font') 
             header =tag.get('top')
-            line_top = int(tag.get('top'))
+            #line_top = int(tag.get('top'))
             
             if header_match(header) == 0:
                 continue
@@ -175,21 +171,13 @@ def main():
             #print(c)
             for i in c:
                 line = str(i)
+                text_line = heading(line,font)
+                if text_line == 'NULL':
+                     pass
+                else:
+                    fo.write(text_line)
+                    continue  
                 
-                if font == H1:
-                    text_line = "<h1>"+line+"</h1>"+"\n"
-                    fo.write(text_line)
-                    continue               
-                elif font == H3 :
-                    text_line = "<h3>"+line+"</h3>"+"\n"
-                    fo.write(text_line)
-                    continue
-                elif font == H2 :
-                    text_line = "<h2>"+line+"</h2>"+"\n"
-                    fo.write(text_line)
-                    continue
-                else :
-                    pass  
                 if indent >= BLOCK_LOWER and indent <= BLOCK_UPPER:                                                      
                     if quote == 0 and indent_next>= BLOCK_LOWER and indent_next <= BLOCK_UPPER: 
                         # ..Biginning of blockquote.....
@@ -215,7 +203,7 @@ def main():
                     elif quote ==1 and indent_next < BLOCK_LOWER : 
                         #....Check begining of Paragraph after a block quote
                         #fo.write("..quote.E..")
-                        text_line="</blockquote>"+ "</p><p>" + line +"\n" 
+                        text_line="</blockquote>"+ "</p>" + "\n" + "<p>" + line +"\n" 
                         fo.write(text_line)
                         quote = 0
                     elif quote ==1 and  header_match(nextline_header) == 0 or font_match( nextline_font) == 0: 
@@ -225,23 +213,25 @@ def main():
                         fo.write(text_line)                        
                     else:
                         pass 
-                        '''
-                        elif indent > BLOCK_UPPER:                       
-                            if quote ==1 and indent_next < BLOCK_LOWER:
-                                fo.write("..quote.F..")
-                                text_line = "<br/>"+line +"</blockquote>"+"</p><p>" +"\n" 
-                                fo.write(text_line) 
-                                quote == 0
-                            elif quote == 1 :
-                                fo.write("..quote.G..")
-                                text_line ="<br/>"+ line +"\n" 
-                                fo.write(text_line) '''
+                elif quote == 1 and indent > BLOCK_UPPER:
+                    # Citation after the blockquote
+                    if indent_next>= BLOCK_LOWER and indent_next <= BLOCK_UPPER: 
+                        text_line = "<br/>"+line +"</blockquote>"+"</p>" + "\n" +"<p>" +"\n" 
+                        fo.write(text_line) 
+                        quote = 0
+                    elif indent_next <= BLOCK_LOWER   :
+                        text_line = "<br/>"+line +"</blockquote>"+"</p>" + "\n" +"<p>" +"\n" 
+                        fo.write(text_line) 
+                        quote = 0
+                    else:
+                        text_line ="<br/>"+ line.rstrip('\n') +"\n" 
+                        fo.write(text_line)                                    
                 else: 
                    
                    if quote == 1 and indent_next < BLOCK_LOWER : 
                        # ...............
                        #fo.write("..quote..G.")
-                       text_line= "</blockquote>"+"</p><p>"+line  +"\n" 
+                       text_line= "</blockquote>"+"</p> " + "\n" +"<p>"+ line + "\n" 
                        fo.write(text_line)
                        quote = 0 
                    regex = r"[a-z]\.$"
@@ -274,6 +264,6 @@ def usage():
 	 xmltohtml.py -i fin.xml -o fout.html 
 	"""	)
 
-
 if __name__ == '__main__':
     main()
+

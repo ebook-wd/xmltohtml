@@ -41,7 +41,7 @@ INDEX = list(range(284,302))
 H1 = '0'
 H2 = '9'
 H3 = '14' 
-
+H4 = ''
 #==============================================================================
 BLOCK_LOWER = int(BLOCK_QUOTE[0])    
 l = len(BLOCK_QUOTE)-1 
@@ -61,13 +61,16 @@ def heading(line,font):
     text_line=''
     if font == H1:
         text_line = "<h1>"+line+"</h1>"+"\n"
-        return text_line              
+        return text_line 
+    elif font == H2 :
+        text_line = "<h2>"+line+"</h2>"+"\n"
+        return text_line             
     elif font == H3 :
         text_line = "<h3>"+line+"</h3>"+"\n"
         return text_line
-    elif font == H2 :
-        text_line = "<h2>"+line+"</h2>"+"\n"
-        return text_line
+    elif font == H4 :
+        text_line = "<h4>"+line+"</h4>"+"\n"
+        return text_line    
     else:
         return 'NULL'
 def index_check(page_no):

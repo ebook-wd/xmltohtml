@@ -29,13 +29,20 @@ next_indent = ''
 next_font = ''
 next_header = ''
 
-BLOCK_QUOTE = ['254','255'] 
+#==============================================================================
 
+BLOCK_QUOTE = ['254','255'] 
 unwanted_font = ['1','2','15']
 HEADER = ['0','87','198','199','200']
+CENTER = 5
+CONTENT_PAGE_START = 8
+CONTENT_PAGE_END = 8
+INDEX = list(range(284,302))
 H1 = '0'
 H2 = '9'
 H3 = '14' 
+
+#==============================================================================
 BLOCK_LOWER = int(BLOCK_QUOTE[0])    
 l = len(BLOCK_QUOTE)-1 
 BLOCK_UPPER = int(BLOCK_QUOTE[l])          
@@ -63,6 +70,10 @@ def heading(line,font):
         return text_line
     else:
         return 'NULL'
+def index_check(page_no):
+    for i in INDEX:
+        if i == page_no:
+            return 0
             
 def main():
     Input_File_Name  = ''
@@ -120,9 +131,16 @@ def main():
     fo.write("</ul>")
         
     page = soup.find_all('page')
-    
+    page_no = 0
     for p in page:
+        page_no = page_no +1
         quote = 0
+        center = 0
+        
+        if index_check(page_no) == 0:
+            #..........Skips the index pages...............
+            continue
+        
         fo.write("<p>") 
         
         soup =BeautifulSoup(str(p),'xml')
@@ -137,11 +155,48 @@ def main():
             img = s.find('image')
             img_tag = img.get('src')
             #print(img_tag)
-            fo.write('''"<img src="'''+str(img_tag)+'''"/><br/>"''')
-        
+            fo.write('''<img src="'''+str(img_tag)+'''"/><br/>''')
+            
         tex=soup.find_all('text')
-        #for x,y in zip(tex,tex[1:]):
-            #print(x) 
+        
+        if page_no == CENTER :  
+            #....Centralises copy right page
+            fo.write("<center>"+"\n")
+            for x in tex:
+                 soup = BeautifulSoup(str(x),"lxml") 
+                 tag = soup.find('text')
+                 font = tag.get('font') 
+                 header =tag.get('top')
+                 if header_match(header) == 0 or font_match(font) == 0:
+                     continue                 
+                 con = soup.find('text')
+                 c =con.contents
+                 for i in c:
+                     line = str(i)
+                     text_line =  line +"<br/>" + "\n"
+                     fo.write(text_line )
+            fo.write("</center>"+"\n")
+            fo.write("</p>" +"\n")
+            continue
+        
+        if page_no >= CONTENT_PAGE_START and page_no <= CONTENT_PAGE_END:   
+            #......Fix content pages..............                     
+            for x in tex:
+                 soup = BeautifulSoup(str(x),"lxml") 
+                 tag = soup.find('text')
+                 font = tag.get('font') 
+                 header =tag.get('top')
+                 if header_match(header) == 0 or font_match(font) == 0:
+                     continue                 
+                 con = soup.find('text')
+                 c =con.contents
+                 for i in c:
+                     line = str(i)
+                     text_line =  line +"<br/>" + "\n"
+                     fo.write(text_line )           
+            fo.write("</p>" +"\n")
+            continue
+        
         texy = tex +['<text top="0" left="0" width="0" height="0" font="0">SAMPLE TEXT</text>']
         for x, y in zip(tex, texy[1:]):
             #print("x= ",x,"\n","y = ",y)  
@@ -161,10 +216,8 @@ def main():
             header =tag.get('top')
             #line_top = int(tag.get('top'))
             
-            if header_match(header) == 0:
-                continue
-            if font_match(font) == 0:
-                continue   
+            if header_match(header) == 0 or font_match(font) == 0:
+                continue         
                          
             con = soup.find('text')
             c =con.contents
@@ -229,7 +282,6 @@ def main():
                 else: 
                    
                    if quote == 1 and indent_next < BLOCK_LOWER : 
-                       # ...............
                        #fo.write("..quote..G.")
                        text_line= "</blockquote>"+"</p> " + "\n" +"<p>"+ line + "\n" 
                        fo.write(text_line)
@@ -246,7 +298,9 @@ def main():
                    else:
                        text_line = line+"\n"                        
                    fo.write(text_line)
-                                                                                            
+        if center == 1:
+            fo.write("</center>"+"\n")
+            center = 0                                                                                    
         if quote == 1:
             fo.write("</blockquote>")              
         fo.write("</p>"+"\n")            

@@ -14,7 +14,7 @@ python xmltohtml.py -i foo.xml -o foo.html
 __author__      = "William Doyle A F"
 __copyright__   = "Copyright 2016"
 __license__ 	= "GNU GPLv3 (http://www.gnu.de/documents/gpl-3.0.en.html)"
-__version__ 	= "1.2"
+__version__ 	= "1.3"
 
 import re
 import sys

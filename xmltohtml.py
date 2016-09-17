@@ -116,8 +116,17 @@ def main():
     fo.write(''' p {
                     padding: 0cm 0cm 0cm 0cm;
                     text-indent: 45px;
+                    text-align:justify;
                     }
                     ''')
+    fo.write('''blockquote { 
+                            display: block;
+                            margin-top: 1em;
+                            margin-bottom: 1em;
+                            margin-left: 40px;
+                            margin-right: 40px;
+                            text-align:justify;
+                    }''')
     fo.write("</style>"+"\n")
     fo.write("</head>"+"\n")
     fo.write('''<body bgcolor="#FFFFFF" vlink="blue" link="blue">'''+"\n")

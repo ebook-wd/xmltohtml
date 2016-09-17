@@ -108,16 +108,19 @@ def main():
 
     fo = open(Output_File_Name,'w') 
     
-    fo.write("<!DOCTYPE html>")
-    fo.write('''<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">''')
-    fo.write("<head><title>Thomas Young</title>")
-    fo.write('''<style type="text/css">''')
+    fo.write("<!DOCTYPE html>"+"\n")
+    fo.write('''<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">'''+"\n")
+    fo.write("<head>"+"\n")
+    fo.write("<title>Thomas Young</title>"+ "\n")
+    fo.write('''<style type="text/css">'''+ "\n")
     fo.write(''' p {
                     padding: 0cm 0cm 0cm 0cm;
+                    text-indent: 45px;
                     }
                     ''')
-    fo.write("</style></head>")
-    fo.write('''<body bgcolor="#FFFFFF" vlink="blue" link="blue">''')
+    fo.write("</style>"+"\n")
+    fo.write("</head>"+"\n")
+    fo.write('''<body bgcolor="#FFFFFF" vlink="blue" link="blue">'''+"\n")
      
     soup = BeautifulSoup(fin,'xml')    
     

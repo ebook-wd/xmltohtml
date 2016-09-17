@@ -113,6 +113,13 @@ def main():
     fo.write("<head>"+"\n")
     fo.write("<title>Thomas Young</title>"+ "\n")
     fo.write('''<style type="text/css">'''+ "\n")
+    fo.write('''h1 {
+                    text-align: center;
+                    }
+
+                h2 {
+                    text-align: center;
+                    }''')
     fo.write(''' p {
                     padding: 0cm 0cm 0cm 0cm;
                     text-indent: 45px;
@@ -243,7 +250,9 @@ def main():
                 if text_line == 'NULL':
                      pass
                 else:
+                    fo.write("</p>"+"\n")
                     fo.write(text_line)
+                    fo.write("<p>"+"\n")
                     continue  
                 
                 if indent >= BLOCK_LOWER and indent <= BLOCK_UPPER:                                                      

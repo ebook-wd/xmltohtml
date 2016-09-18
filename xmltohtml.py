@@ -14,7 +14,7 @@ python xmltohtml.py -i foo.xml -o foo.html
 __author__      = "William Doyle A F"
 __copyright__   = "Copyright 2016"
 __license__ 	= "GNU GPLv3 (http://www.gnu.de/documents/gpl-3.0.en.html)"
-__version__ 	= "1.4"
+__version__ 	= "1.5"
 
 import re
 import sys
@@ -42,6 +42,8 @@ H1 = '0'
 H2 = '9'
 H3 = '14' 
 H4 = ''
+SUPER_FONT = ['']
+FOOTNOTES_FONT = ['']
 #==============================================================================
 BLOCK_LOWER = int(BLOCK_QUOTE[0])    
 l = len(BLOCK_QUOTE)-1 
@@ -77,6 +79,27 @@ def index_check(page_no):
     for i in INDEX:
         if i == page_no:
             return 0
+def superscript(line,font, line_top, nextline_top ):
+    # checks for super script and subscript
+    text_line=''
+    for n in SUPER_FONT:
+        if n == font and nextline_top > line_top :
+            text_line = "<sup><small>" + line + "</small></sup>"
+            return text_line
+        elif n == font and nextline_top < line_top :
+            text_line = "<sub><small>" + line + "</small></sub>"
+            return text_line
+        else:
+            return 'NULL'
+def footnote(line,font):
+    # checks for footnotes
+    text_line = line
+    for n in FOOTNOTES_FONT:
+        if n == font:
+            text_line = "\n"+"<small>" + line + "</small>" 
+           
+    return   text_line           
+       
             
 def main():
     Input_File_Name  = ''
@@ -310,6 +333,13 @@ def main():
                        text_line= "</blockquote>"+"</p> " + "\n" +"<p>"+ line + "\n" 
                        fo.write(text_line)
                        quote = 0 
+                   text_line = superscript(line,font, line_top, nextline_top )  #checks for super script and subscript
+                   if text_line == 'NULL':                        
+                        pass
+                   else:
+                        fo.write(text_line + "\n")
+                        continue
+                   line = footnote(line,font) #checks for footnotes
                    regex = r"[a-z]\.$"
                    match1 = re.search(regex, line)
                    regex = r"[a-z]”\.$"

@@ -30,7 +30,7 @@ next_font = ''
 next_header = ''
 
 #==============================================================================
-
+PARA_INDENT = ['254','255']
 BLOCK_QUOTE = ['254','255'] 
 unwanted_font = ['1','2','15']
 HEADER = ['0','87','198','199','200']
@@ -249,7 +249,7 @@ def main():
             tag = soup.find('text')
             indent_next = int(tag.get('left'))
             nextline_header = tag.get('top')
-            #nextline_top = int(tag.get('top'))
+            nextline_top = int(tag.get('top'))
             nextline_font = tag.get('font')
             
             
@@ -259,7 +259,7 @@ def main():
             indent = int(tag.get('left'))
             font = tag.get('font') 
             header =tag.get('top')
-            #line_top = int(tag.get('top'))
+            line_top = int(tag.get('top'))
             
             if header_match(header) == 0 or font_match(font) == 0:
                 continue         
@@ -300,36 +300,45 @@ def main():
                         #fo.write("..quote..D...")
                         text_line = line+ "\n"
                         fo.write(text_line)    
-                    elif quote ==1 and indent_next < BLOCK_LOWER : 
-                        #....Check begining of Paragraph after a block quote
+                    elif (quote ==1 and  header_match(nextline_header) == 0 ) or ( quote ==1 and font_match( nextline_font) == 0): 
+                        # ...If last line of page is blockquote
                         #fo.write("..quote.E..")
-                        text_line="</blockquote>"+ "</p>" + "\n" + "<p>" + line +"\n" 
+                        text_line = line +"\n" 
+                        fo.write(text_line) 
+                    elif quote ==1 and indent_next < BLOCK_LOWER and PARA_INDENT  == BLOCK_QUOTE : 
+                        #....Check begining of Paragraph after a block quote when both blockquote and paragraph have same indent
+                        #fo.write("..quote.F..")
+                        text_line=  "</blockquote>"+ "</p>" + "\n" + "<p>" +"\n" + line +"\n"
                         fo.write(text_line)
                         quote = 0
-                    elif quote ==1 and  header_match(nextline_header) == 0 or font_match( nextline_font) == 0: 
-                        # ...If last line of page is blockquote
-                        #fo.write("..quote.F..")
-                        text_line = line +"\n" 
-                        fo.write(text_line)                        
+                    elif quote ==1 and indent_next < BLOCK_LOWER and PARA_INDENT  != BLOCK_QUOTE:  
+                        #....Check begining of Paragraph after a block quote when both blockquote and paragraph have different indent
+                        #fo.write("..quote.G..")
+                        text_line= line +"\n" + "</blockquote>"+ "</p>" + "\n" + "<p>" +"\n"
+                        fo.write(text_line)
+                        quote = 0
                     else:
                         pass 
                 elif quote == 1 and indent > BLOCK_UPPER:
                     # Citation after the blockquote
                     if indent_next>= BLOCK_LOWER and indent_next <= BLOCK_UPPER: 
+                        #fo.write("..quote..H.")
                         text_line = "<br/>"+line +"</blockquote>"+"</p>" + "\n" +"<p>" +"\n" 
                         fo.write(text_line) 
                         quote = 0
                     elif indent_next <= BLOCK_LOWER   :
+                        #fo.write("..quote..I.")
                         text_line = "<br/>"+line +"</blockquote>"+"</p>" + "\n" +"<p>" +"\n" 
                         fo.write(text_line) 
                         quote = 0
                     else:
+                        #fo.write("..quote..J.")
                         text_line ="<br/>"+ line.rstrip('\n') +"\n" 
                         fo.write(text_line)                                    
                 else: 
                    
                    if quote == 1 and indent_next < BLOCK_LOWER : 
-                       #fo.write("..quote..G.")
+                       #fo.write("..quote..K.")
                        text_line= "</blockquote>"+"</p> " + "\n" +"<p>"+ line + "\n" 
                        fo.write(text_line)
                        quote = 0 

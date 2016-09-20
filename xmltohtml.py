@@ -30,10 +30,11 @@ next_font = ''
 next_header = ''
 
 #==============================================================================
-PARA_INDENT = ['254','255']
+PARA_INDENT = [252,253,254,255]
 BLOCK_QUOTE = ['254','255'] 
 unwanted_font = ['1','2','15']
-HEADER = ['0','87','198','199','200']
+HEADER = ['0','87','198','199','200','217']
+LINE_SPACING = ''
 CENTER = 5
 CONTENT_PAGE_START = 8
 CONTENT_PAGE_END = 8
@@ -99,8 +100,14 @@ def footnote(line,font):
             text_line = "\n"+"<small>" + line + "</small>" 
            
     return   text_line           
-       
-            
+def paragraph_check(indent_next):
+    para = 0
+    for n in PARA_INDENT :
+        if  n == indent_next :
+            para = 1    
+    return para                
+def check_line_spacing(line_top, nextline_top)   :
+    return nextline_top - line_top            
 def main():
     Input_File_Name  = ''
 	# Assigns the out put file name
@@ -348,16 +355,13 @@ def main():
                    else:
                         fo.write(text_line + "\n")
                         continue
-                   line = footnote(line,font) #checks for footnotes
-                   regex = r"[a-z]\.$"
-                   match1 = re.search(regex, line)
-                   regex = r"[a-z]”\.$"
-                   match2 = re.search(regex, line)
-                   if match1:
-                       text_line = line+"</p>"+"\n"+"<p>"
-                   elif match2:                        
-                       #fo.write("[....from R......]"+"\n")  
-                       text_line = line+"</p>"+"\n"+"<p>"                                                            
+                   line = footnote(line,font) #checks for footnotes     
+                   line_gap = check_line_spacing(line_top, nextline_top)   
+                   if line_gap >= 2*LINE_SPACING - 2  and    line_gap <= 2*LINE_SPACING + 2 :
+                        text_line = line +"<br/>" +"<br/>" +"\n" 
+                   p = paragraph_check(indent_next)
+                   if p == 1:
+                       text_line = line+"</p>"+"\n"+"<p>"                                                                          
                    else:
                        text_line = line+"\n"                        
                    fo.write(text_line)

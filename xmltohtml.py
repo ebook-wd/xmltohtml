@@ -15,6 +15,8 @@ __author__      = "William Doyle A F"
 __copyright__   = "Copyright 2016"
 __license__ 	= "GNU GPLv3 (http://www.gnu.de/documents/gpl-3.0.en.html)"
 __version__ 	= "1.5"
+__maintainer__  = "William Doyle A F"
+__email__       = "williamdoyleaf@gmail.com"
 
 import re
 import sys
@@ -30,22 +32,39 @@ next_font = ''
 next_header = ''
 
 #==============================================================================
-LINE_SPACING = 19
-PARA_INDENT = [252,253,254,255]
-BLOCK_QUOTE = ['254','255'] 
-unwanted_font = ['1','2','15']
-HEADER = ['0','87','198','199','200','217']
-LINE_SPACING = ''
-CENTER = 5
+# It is the difference of "top" values of two neighbouring lines .Only one numeric value can be assigned
+# eg LINE_SPACING = 18 . If no value LINE_SPACING = ''
+LINE_SPACING = 18
+# Paragraph intend must be the value of "left" in xml file . Each value must be without quote and seperated by coma. 
+#eg: PARA_INDENT = [252,253,254,255]. if no values PARA_INDENT = []
+PARA_INDENT = [241, 247]
+# Block qoute must be the value of "left" in xml file . Each value must be with quote and seperated by coma. 
+#eg: BLOCK_QUOTE = ['254','255'] 
+BLOCK_QUOTE = ['0'] 
+
+unwanted_font = ['']
+# Header must be the value of "top" in xml file. Each value must be with quote and seperated by coma. 
+#header reperesent the line no of headers and footers to be avoided printing.
+#eg: HEADER = ['14','15']. if no values PARA_INDENT = [''] 
+HEADER = ['54','69','72','163','166','167','1032','1031','1053','1054']
+#LINE_SPACING = ''
+CENTER = ''
 CONTENT_PAGE_START = 8
-CONTENT_PAGE_END = 8
-INDEX = list(range(284,302))
-H1 = '0'
-H2 = '9'
-H3 = '14' 
-H4 = ''
-SUPER_FONT = ['']
-FOOTNOTES_FONT = ['']
+CONTENT_PAGE_END = 9
+INDEX = list(range(422,438))
+# H1,H2,H3,H4 must be the value of "font" in xml file. Value must be in quote. Only one value can be assighed to each.
+# This represent the headings to be displayed as chapter name.
+# eg H1 = '11' .If no vale H1 = '' and so on
+H1 = '17'
+H2 = '18'
+H3 = '13' 
+H4 = '18'
+# Super font must be the value of "font" in xml file. Each value must be with quote and seperated by coma. 
+#eg: SUPER_FONT  = ['14','15']. if no values PARA_INDENT = [''] 
+SUPER_FONT = ['5']
+# Footnotes font must be the value of "font" in xml file. Each value must be with quote and seperated by coma. 
+#eg: FOOTNOTES_FONT  = ['14','15']. if no values PARA_INDENT = [''] 
+FOOTNOTES_FONT = ['15']
 #==============================================================================
 BLOCK_LOWER = int(BLOCK_QUOTE[0])    
 l = len(BLOCK_QUOTE)-1 
@@ -106,8 +125,9 @@ def footnote(line,font):
     for n in FOOTNOTES_FONT:
         if n == font:
             text_line = "\n"+"<small>" + line + "</small>" 
-           
-    return   text_line           
+            return   text_line 
+        else:
+            return 'NULL'       
 def paragraph_check(indent_next):
     para = 0
     for n in PARA_INDENT :
@@ -133,6 +153,12 @@ def main():
             Input_File_Name  = arg
         elif opt in ("-o", "--outfile"):
             Output_File_Name = arg     
+    if  Output_File_Name ==''   :
+        text = Input_File_Name
+        split = re.split(r'\.(?!\d)', text)
+        #print(split[0])
+        Output_File_Name  = split[0]+"."+"html"
+        #print(Output_File_Name  )
 
     try:
         fin = open(Input_File_Name, 'r')
@@ -148,7 +174,7 @@ def main():
     fo.write("<!DOCTYPE html>"+"\n")
     fo.write('''<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">'''+"\n")
     fo.write("<head>"+"\n")
-    fo.write("<title>Thomas Young</title>"+ "\n")
+    fo.write("<title>" + Output_File_Name + "</title>"+ "\n")
     fo.write('''<style type="text/css">'''+ "\n")
     fo.write('''h1 {
                     text-align: center;
@@ -170,6 +196,15 @@ def main():
                             margin-left: 40px;
                             margin-right: 40px;
                             text-align:justify;
+                    }''')
+    fo.write('''.indent{
+                            margin: .1em 0em 0em 0em;
+                            font-size: 100%;
+                            text-align: justify;
+                            text-indent: 1em;
+                    }''')
+    fo.write('''small{
+                            font-size: 90%;
                     }''')
     fo.write("</style>"+"\n")
     fo.write("</head>"+"\n")
@@ -409,13 +444,36 @@ def main():
                    else:
                         fo.write(text_line + "\n")
                         continue
-                   line = footnote(line,font) #checks for footnotes    
                    line_gap = check_line_spacing(line_top, nextline_top)   
-                   if line_gap >= 2*LINE_SPACING - 2  and    line_gap <= 2*LINE_SPACING + 2 :
-                        text_line = line +"<br/>" +"<br/>" +"\n"                      
+                   #if line_gap >= 2*LINE_SPACING - 2  and    line_gap <= 2*LINE_SPACING + 2 :
+                   if line_gap >= LINE_SPACING + 5  and    line_gap <= 2*LINE_SPACING :
+                        text_line = line +"<br/>" +"<br/>" +"\n"   
+                        fo.write(text_line + "\n")
+                        continue                                        
+                   text_line = footnote(line,font) #checks for footnotes  
+                   if  text_line ==  'NULL':
+                        text_line = line
+			            fn = 0
+                   else:
+			            if fn == 0:
+				            fo.write("<br/><br/>")
+                        	fo.write(text_line + "\n")
+				            fn = 1
+			            else:
+			    	        if line.isdigit() and line.isdigit()<100:  
+                   			    print(line)
+                   			    fo.write("<br/>")         			
+                   			    fo.write("<small>"+line +"</small>"+ "  "+"\n")
+                   			    fn = 1
+                   		    else:
+                   			    fo.write(text_line + "\n")
+                   			    fn = 1    
+                        continue
+
                    p = paragraph_check(indent_next)
                    if p == 1:
-                       text_line = text_line +"</p>"+"\n"+"<p>"                                                                          
+                       #text_line = text_line +"</p>"+"\n"+"<p>"  
+                       text_line = text_line +"</p>"+"\n"+'''<p class="indent">'''                                                                         
                    else:                        
                        text_line = text_line +"\n"                                        
                    fo.write(text_line)

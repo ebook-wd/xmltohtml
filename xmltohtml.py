@@ -174,36 +174,51 @@ def main():
     fo.write("<head>"+"\n")
     fo.write("<title>" + Output_File_Name + "</title>"+ "\n")
     fo.write('''<style type="text/css">'''+ "\n")
-    fo.write('''h1 {
-                    text-align: center;
+    fo.write(
+             '''h1 {
+                            text-align: center;
                     }
 
                 h2 {
-                    text-align: center;
-                    }''')
-    fo.write(''' p {
-                    padding: 0cm 0cm 0cm 0cm;
-                    
-                    text-align:justify;
+                            text-align: center;
                     }
                     ''')
-    fo.write('''blockquote { 
+    fo.write('''
+                p {
+                            padding: 0cm 0cm 0cm 0cm;               
+                            text-align:justify;
+                    }
+                    ''')
+    fo.write('''
+                blockquote { 
                             display: block;
                             margin-top: 1em;
                             margin-bottom: 1em;
                             margin-left: 40px;
                             margin-right: 40px;
                             text-align:justify;
-                    }''')
-    fo.write('''.indent{
+                    }
+                    ''')
+    fo.write('''
+                .indent{
                             margin: .1em 0em 0em 0em;
                             font-size: 100%;
                             text-align: justify;
                             text-indent: 1em;
-                    }''')
-    fo.write('''small{
+                    }
+                    ''')
+    fo.write('''
+                small{
                             font-size: 90%;
-                    }''')
+                    }
+                    ''')
+    fo.write('''
+                .note{
+                            margin: .1em 0em 0em 1.8em;
+                            font-size: 90%;
+                            text-indent:-0.8em;
+                    }
+                    ''')    
     fo.write("</style>"+"\n")
     fo.write("</head>"+"\n")
     fo.write('''<body bgcolor="#FFFFFF" vlink="blue" link="blue">'''+"\n")
@@ -211,8 +226,9 @@ def main():
     soup = BeautifulSoup(fin,'xml')    
     #print(soup)
     
-    outline = soup.outline.find_all('item')
-    if outline:
+    if soup.outline != None:  
+        outline = soup.outline.find_all('item')
+    #if outline:
     	fo.write('''<a name="outline"></a><h1>Document Outline</h1><ul>''')
     	#print(outline)
     	for t in outline:
@@ -316,8 +332,14 @@ def main():
             con = soup.find('text')
             c =con.contents
             #print(c)
+            Line = ''
+            line = ['']            
             for i in c:
-                line = str(i)
+                #line = str(i)
+                Line = Line + str(i)
+            line[0] = Line
+            for i in line:
+                line = str(i)                                
                 text_line = heading(line,font)
                 if text_line == 'NULL':
                      pass

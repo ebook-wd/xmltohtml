@@ -287,23 +287,24 @@ def main():
             fo.write("</p>" +"\n")
             continue
         
-        if page_no >= CONTENT_PAGE_START and page_no <= CONTENT_PAGE_END:   
+        if CONTENT_PAGE_START != '':
+            if page_no >= CONTENT_PAGE_START and page_no <= CONTENT_PAGE_END:   
             #......Fix content pages..............                     
-            for x in tex:
-                 soup = BeautifulSoup(str(x),"lxml") 
-                 tag = soup.find('text')
-                 font = tag.get('font') 
-                 header =tag.get('top')
-                 if header_match(header) == 0 or font_match(font) == 0:
-                     continue                 
-                 con = soup.find('text')
-                 c =con.contents
-                 for i in c:
-                     line = str(i)
-                     text_line =  line +"<br/>" + "\n"
-                     fo.write(text_line )           
-            fo.write("</p>" +"\n")
-            continue
+                for x in tex:
+                    soup = BeautifulSoup(str(x),"lxml") 
+                    tag = soup.find('text')
+                    font = tag.get('font') 
+                    header =tag.get('top')
+                    if header_match(header) == 0 or font_match(font) == 0:
+                        continue                 
+                    con = soup.find('text')
+                    c =con.contents
+                    for i in c:
+                        line = str(i)
+                        text_line =  line +"<br/>" + "\n"
+                        fo.write(text_line )           
+                fo.write("</p>" +"\n")
+                continue
         
         texy = tex +['<text top="0" left="0" width="0" height="0" font="0">SAMPLE TEXT</text>']
         for x, y in zip(tex, texy[1:]):
